@@ -15,7 +15,7 @@
 <div class="topbar">
   <div class="wrap topbar-in">
     <span class="brand">Leonida <em>Port Tracker</em></span>
-    <span class="here" id="here" hidden title="People with this page open right now"><b id="here-n">1</b> here now</span>
+    <span class="here" id="here" title="People with this page open right now"><b id="here-n">…</b> <span id="here-l">here now</span></span>
     <span class="status"><span class="pulse" id="pulse"></span><span id="status-text">Connecting to GitHub…</span></span>
   </div>
 </div>
@@ -23,6 +23,7 @@
 <header class="hero">
   <canvas id="scene" aria-hidden="true"></canvas>
   <div class="wrap hero-in">
+    <p class="watching" title="People with this page open right now, counted live"><span class="dot"></span><b id="watch-n">…</b> <span id="watch-l">watching live with you</span></p>
     <p class="kicker">Xbox Series → PC · live from the Leonida repository</p>
     <h1>How far is the<br>road to <span>Leonida</span>?</h1>
     <p class="lede">A live estimate of when the community port boots, worked out each minute from what the developers actually merge. Every change lands in the log below as it happens.</p>
@@ -109,11 +110,11 @@
   <div class="wrap">
     <p>Data: the public <a href="https://github.com/ItsNotRexed/Leonida" target="_blank" rel="noopener">Leonida repository</a> on GitHub, read from your browser. Estimates are projections, not promises.</p>
     <p>Fan-made and unofficial. Not affiliated with Rockstar Games, Take-Two Interactive or Microsoft. Leonida ships no game files: players supply their own legally owned copy. The exe mentioned above stays on the tester's PC and is never shared.</p>
-    <p>The "here now" count uses a free public MQTT server (broker.emqx.io): your browser connects to it anonymously and sends only a random id and a timestamp. Anyone can connect to that server, so treat the number as approximate.</p>
+    <p>The "here now" count uses two free public MQTT servers (broker.emqx.io and broker.hivemq.com): your browser connects to it anonymously and sends only a random id and a timestamp. Anyone can connect to that server, so treat the number as approximate.</p>
   </div>
 </footer>
 
-<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script src="vendor/mqtt.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

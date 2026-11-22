@@ -382,37 +382,48 @@ function scene() {
 /* ---------- people here now (public MQTT broker, retained heartbeats) ---------- */
 // Each visitor keeps a retained timestamp on its own random topic; the broker clears it when the tab goes away
 // (last will), and stale ones are ignored. shortcut: public broker, so the count can be faked; move to Supabase presence if that matters.
+// Two brokers, counted together by visitor id, so one blocked or down server doesn't hide the count.
 function presence() {
-  if (!window.mqtt) return;
+  const label = (n, l) => {
+    $("here-n").textContent = n; $("here-l").textContent = l;
+    $("watch-n").textContent = n; $("watch-l").textContent = l === "here now" ? (n === "1" ? "watching live (just you)" : "watching live with you") : l;
+  };
+  if (!window.mqtt) { label("–", "live count blocked"); return; }
   const base = "leonida-tracker/v1/presence/";
   const id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).replace(/-/g, "").slice(0, 16);
   const STALE = 75e3, seen = new Map();
-  let c;
-  try {
-    c = mqtt.connect("wss://broker.emqx.io:8084/mqtt", {
-      clientId: "lpt_" + id, clean: true, keepalive: 30, reconnectPeriod: 5000, connectTimeout: 10e3,
-      will: { topic: base + id, payload: "", retain: true, qos: 1 },
-    });
-  } catch { return; }
-  const beat = () => c.connected && c.publish(base + id, String(Date.now()), { retain: true, qos: 1 });
+  const brokers = ["wss://broker.emqx.io:8084/mqtt", "wss://broker.hivemq.com:8884/mqtt"];
+  const clients = [];
+  const anyUp = () => clients.some((c) => c.connected);
   const show = () => {
     const now = Date.now(); let n = 0;
     for (const [k, ts] of seen) { if (now - ts < STALE) n++; else if (now - ts > 10 * MIN) seen.delete(k); }
-    if (!c.connected) return;
-    $("here-n").textContent = Math.max(1, n).toLocaleString();
-    $("here").hidden = false;
+    if (anyUp()) label(Math.max(1, n).toLocaleString(), "here now");
   };
-  c.on("connect", () => { c.subscribe(base + "+", { qos: 0 }); seen.set(id, Date.now()); beat(); show(); });
-  c.on("message", (topic, payload) => {
-    const k = topic.slice(base.length), s = payload.toString();
-    if (!/^[a-z0-9]{1,32}$/i.test(k)) return;
-    if (!s) seen.delete(k);
-    else if (/^\d{10,14}$/.test(s)) seen.set(k, Math.min(Number(s), Date.now()));
-    show();
-  });
-  c.on("offline", () => { $("here").hidden = true; });
-  setInterval(() => { beat(); seen.set(id, Date.now()); show(); }, 30e3);
-  addEventListener("pagehide", () => { try { c.publish(base + id, "", { retain: true, qos: 0 }); c.end(true); } catch { /* closing */ } });
+  for (const url of brokers) {
+    let c;
+    try {
+      c = mqtt.connect(url, {
+        clientId: "lpt_" + id + "_" + clients.length, clean: true, keepalive: 30, reconnectPeriod: 30e3, connectTimeout: 10e3,
+        will: { topic: base + id, payload: "", retain: true, qos: 1 },
+      });
+    } catch { continue; }
+    const beat = () => c.connected && c.publish(base + id, String(Date.now()), { retain: true, qos: 1 });
+    c.on("connect", () => { c.subscribe(base + "+", { qos: 0 }); seen.set(id, Date.now()); beat(); show(); });
+    c.on("message", (topic, payload) => {
+      const k = topic.slice(base.length), s = payload.toString();
+      if (!/^[a-z0-9]{1,32}$/i.test(k)) return;
+      if (!s) seen.delete(k);
+      else if (/^\d{10,14}$/.test(s)) seen.set(k, Math.max(seen.get(k) || 0, Math.min(Number(s), Date.now())));
+      show();
+    });
+    c.on("error", () => { /* reconnects on its own */ });
+    setInterval(beat, 30e3);
+    clients.push(c);
+  }
+  setTimeout(() => { if (!anyUp()) label("–", "live count unreachable"); }, 15e3);
+  setInterval(() => { seen.set(id, Date.now()); show(); }, 30e3);
+  addEventListener("pagehide", () => { for (const c of clients) try { c.publish(base + id, "", { retain: true, qos: 0 }); c.end(true); } catch { /* closing */ } });
 }
 
 /* ---------- start ---------- */
