@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leonida Port Tracker</title>
+<meta name="description" content="Live progress and estimated first boot of Leonida, the community PC port of the Xbox Series build of GTA VI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,700;0,900;1,900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <span class="brand">Leonida <em>Port Tracker</em></span>
+    <span class="status"><span class="pulse" id="pulse"></span><span id="status-text">Connecting to GitHub…</span></span>
+  </div>
+</div>
+
+<header class="hero">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="wrap hero-in">
+    <p class="kicker">Xbox Series → PC · live from the Leonida repository</p>
+    <h1>How far is the<br>road to <span>Leonida</span>?</h1>
+    <p class="lede">A live estimate of when the community port boots, worked out each minute from what the developers actually merge. Every change lands in the log below as it happens.</p>
+
+    <div class="gantry" role="list">
+      <article class="sign" role="listitem" id="sign-exe">
+        <div class="sign-tab">Exe</div>
+        <h2>Retail exe arrives</h2>
+        <div class="big" id="exe-count">--</div>
+        <p class="sign-sub" id="exe-when">Mon 23 Nov · 12:00 noon ET</p>
+      </article>
+      <article class="sign" role="listitem" id="sign-boot">
+        <div class="sign-tab">Boot</div>
+        <h2>First boot <small>estimate</small></h2>
+        <div class="big" id="boot-count">--</div>
+        <p class="sign-sub" id="boot-window">Working it out…</p>
+      </article>
+      <article class="sign" role="listitem" id="sign-d3d">
+        <div class="sign-tab">D3D12</div>
+        <h2>Graphics layer <small>estimate</small></h2>
+        <div class="big" id="d3d-count">--</div>
+        <p class="sign-sub" id="d3d-sub">Reading the task board…</p>
+      </article>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="band">
+    <div class="wrap two">
+      <div>
+        <h2 class="sec">Mile markers</h2>
+        <p class="sec-sub">The route from a console copy to something you can play. Order matters: each stage needs the ones before it.</p>
+        <ol class="markers" id="markers"></ol>
+      </div>
+      <div>
+        <h2 class="sec">Live log</h2>
+        <p class="sec-sub">Merges, estimate changes and milestones, newest first. Checked every minute.</p>
+        <ol class="log" id="log" aria-live="polite"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <h2 class="sec">Graphics layer board</h2>
+      <p class="sec-sub">Every item in the project's Direct3D 12 → Vulkan tracker (issue <a href="https://github.com/ItsNotRexed/Leonida/issues/313" target="_blank" rel="noopener">#313</a>). The game can't draw anything until this layer is done.</p>
+      <div class="board">
+        <div class="bar" id="d3d-bar" role="img" aria-label="Graphics layer items by state"></div>
+        <dl class="legend" id="d3d-legend"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <h2 class="sec">Traffic</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap method">
+      <h2 class="sec">How the estimate works</h2>
+      <div class="method-grid">
+        <div>
+          <h3>First boot</h3>
+          <p>The Leonida developers expect booting to take <b>1 to 3 days</b> after a retail exe reaches them. The tracker starts from that window and stretches or shrinks it by how fast work is landing now: the pull requests merged in the last 24 hours against the 24 hours before, capped at ±25% so one big merge round can't swing it wildly.</p>
+          <p class="formula" id="boot-formula">waiting for data…</p>
+          <p>When the coordination board moves the boot task (RT-5) from "blocked" to claimed, the sign says work is underway. When a pull request for RT-5 merges, it says booted.</p>
+        </div>
+        <div>
+          <h3>Graphics layer</h3>
+          <p>Items on the graphics board that aren't merged yet, divided by how many graphics-layer pull requests merged per hour over the last two days. The range uses the last 24 hours as the second speed.</p>
+          <p class="formula" id="d3d-formula">waiting for data…</p>
+          <p>Playable has no estimate on purpose: nobody can know how much breaks until the game boots.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Data: the public <a href="https://github.com/ItsNotRexed/Leonida" target="_blank" rel="noopener">Leonida repository</a> on GitHub, read from your browser. Estimates are projections, not promises.</p>
+    <p>Fan-made and unofficial. Not affiliated with Rockstar Games, Take-Two Interactive or Microsoft. Leonida ships no game files: players supply their own legally owned copy. The exe mentioned above stays on the tester's PC and is never shared.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
