@@ -334,7 +334,7 @@ function renderLadder() {
   const top = st?.boot === 1 ? 4 : (st?.boot === 0.5 || S.rt5Pr) ? 1 : 0;
   RUNGS.forEach(([name, desc], i) => {
     const fill = i < top ? 1 : i === top ? (i === 0 ? (st ? st.ground : 0) : 0.5) : 0;
-    const li = el("li", i < top ? "reached" : i === top ? "here" : "future");
+    const li = el("li", i < top ? "reached" : i === top ? "current" : "future");
     li.style.setProperty("--fill", fill * 100 + "%");
     const head = el("div"); head.append(el("div", "rn", "RUNG " + (i + 1)), el("h3", null, name));
     const foot = el("div"); foot.append(el("div", "pct", i < top ? "✓" : i === top ? (i === 0 && st ? Math.round(st.ground * 100) + "%" : "Now") : "—"), el("div", "desc", desc));

@@ -42,9 +42,9 @@ a:hover { color: #7ff0e4; }
 .nav a { color: var(--soft); text-decoration: none; font-size: 14px; font-weight: 500; position: relative; padding-block: 6px; }
 .nav a:hover, .nav a.on { color: var(--text); }
 .nav a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px; background: var(--sun-grad); }
-.here { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; border-radius: 999px; background: rgba(12, 10, 28, .55); border: 1px solid var(--line-2); font-size: 13px; color: var(--soft); white-space: nowrap; }
-.here i { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 0 0 rgba(255, 79, 154, .6); animation: ping 1.8s infinite; }
-.here b { font: 800 15px/1 var(--f-display); color: var(--text); font-variant-numeric: tabular-nums; }
+.top .here { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; border-radius: 999px; background: rgba(12, 10, 28, .55); border: 1px solid var(--line-2); font-size: 13px; color: var(--soft); white-space: nowrap; }
+.top .here i { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 0 0 rgba(255, 79, 154, .6); animation: ping 1.8s infinite; }
+.top .here b { font: 800 15px/1 var(--f-display); color: var(--text); font-variant-numeric: tabular-nums; }
 @keyframes ping { 70% { box-shadow: 0 0 0 8px rgba(255, 79, 154, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 79, 154, 0); } }
 
 /* hero */
@@ -95,7 +95,7 @@ h1 { margin: 0; display: grid; gap: 6px; }
 .ladder h3 { margin: 4px 0 0; font: 800 15px/1.15 var(--f-display); font-stretch: 105%; text-transform: uppercase; }
 .ladder .pct { font: 900 28px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .ladder .desc { font-size: 12px; color: var(--soft); line-height: 1.4; }
-.ladder li.here { border-color: rgba(255, 138, 61, .7); box-shadow: 0 0 0 1px rgba(255, 138, 61, .35), 0 18px 40px -18px rgba(255, 138, 61, .55); }
+.ladder li.current { border-color: rgba(255, 138, 61, .7); box-shadow: 0 0 0 1px rgba(255, 138, 61, .35), 0 18px 40px -18px rgba(255, 138, 61, .55); }
 .ladder li.reached { border-color: rgba(82, 227, 164, .4); }
 .ladder li.reached .fill { background: linear-gradient(0deg, rgba(82, 227, 164, .45), rgba(47, 212, 196, .18)); }
 .ladder li.future h3, .ladder li.future .pct { color: var(--mute); }
