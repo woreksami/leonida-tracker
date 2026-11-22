@@ -4,122 +4,167 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Leonida Port Tracker</title>
-<meta name="description" content="Live progress and estimated first boot of Leonida, the community PC port of the Xbox Series build of GTA VI.">
+<meta name="description" content="Live, sourced progress of Leonida, the community PC port of the Xbox Series build of GTA VI: boot estimate, verified news and every merge as it lands.">
+<meta name="theme-color" content="#0c0a1c">
+<meta property="og:title" content="Leonida Port Tracker">
+<meta property="og:description" content="Live boot estimate, verified news and every merge of the Leonida GTA VI PC port.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0a1c'/%3E%3Ccircle cx='16' cy='18' r='8' fill='%23ff8a3d'/%3E%3Crect x='6' y='18' width='20' height='2' fill='%230c0a1c'/%3E%3Crect x='6' y='22' width='20' height='3' fill='%230c0a1c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,700;0,900;1,900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="wrap topbar-in">
-    <span class="brand">Leonida <em>Port Tracker</em></span>
-    <span class="here" id="here" title="People with this page open right now"><b id="here-n">…</b> <span id="here-l">here now</span></span>
-    <span class="status"><span class="pulse" id="pulse"></span><span id="status-text">Connecting to GitHub…</span></span>
-  </div>
-</div>
+<a class="skip" href="#status">Skip to the status</a>
 
-<header class="hero">
-  <canvas id="scene" aria-hidden="true"></canvas>
-  <div class="wrap hero-in">
-    <p class="watching" title="People with this page open right now, counted live"><span class="dot"></span><b id="watch-n">…</b> <span id="watch-l">watching live with you</span></p>
-    <p class="kicker">Xbox Series → PC · live from the Leonida repository</p>
-    <h1>How far is the<br>road to <span>Leonida</span>?</h1>
-    <p class="lede">A live estimate of when the community port boots, worked out each minute from what the developers actually merge. Every change lands in the log below as it happens.</p>
-
-    <div class="gantry" role="list">
-      <article class="sign" role="listitem" id="sign-exe">
-        <div class="sign-tab">Exe</div>
-        <h2>Retail exe arrives</h2>
-        <div class="big" id="exe-count">--</div>
-        <p class="sign-sub" id="exe-when">Mon 23 Nov · 12:00 noon ET</p>
-      </article>
-      <article class="sign" role="listitem" id="sign-boot">
-        <div class="sign-tab">Boot</div>
-        <h2>First boot <small>estimate</small></h2>
-        <div class="big" id="boot-count">--</div>
-        <p class="sign-sub" id="boot-window">Working it out…</p>
-      </article>
-      <article class="sign" role="listitem" id="sign-d3d">
-        <div class="sign-tab">D3D12</div>
-        <h2>Graphics layer <small>estimate</small></h2>
-        <div class="big" id="d3d-count">--</div>
-        <p class="sign-sub" id="d3d-sub">Reading the task board…</p>
-      </article>
-    </div>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="mark" href="#">Leonida<span>Tracker</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#ladder">Ladder</a><a href="#news">News</a><a href="#feed">Live feed</a><a href="#board">Board</a><a href="#field">Other ports</a><a href="#method">Method</a>
+    </nav>
+    <span class="here" id="here" title="People with this page open right now"><i></i><b id="here-n">…</b><span id="here-l">here now</span></span>
   </div>
 </header>
 
+<section class="hero" id="status">
+  <div class="hero-art" aria-hidden="true">
+    <canvas id="scene"></canvas>
+    <img id="hero-img" src="assets/hero.jpg" alt="" decoding="async" fetchpriority="high">
+  </div>
+  <div class="wrap hero-in">
+    <p class="eyebrow"><span class="live-dot"></span>Live · the community PC port of GTA VI's Xbox Series build</p>
+    <h1><span class="h1-small">GTA VI on PC</span><span class="h1-big" id="phase">Waiting for the exe</span></h1>
+    <p class="lede" id="phase-lede">Leonida translates the Xbox Series build of GTA VI to run natively on PC. Everything on this page is read live from its GitHub repository and checked every minute.</p>
+    <div class="clocks" role="list">
+      <div class="clock" role="listitem" id="c-exe">
+        <span class="c-k">Exe arrives</span>
+        <b class="c-v" id="exe-count">--</b>
+        <span class="c-s" id="exe-when">Mon 23 Nov · 12:00 noon ET</span>
+      </div>
+      <div class="clock" role="listitem" id="c-boot">
+        <span class="c-k">First boot <em>estimate</em></span>
+        <b class="c-v" id="boot-count">--</b>
+        <span class="c-s" id="boot-window">Working it out…</span>
+      </div>
+      <div class="clock" role="listitem" id="c-d3d">
+        <span class="c-k">Graphics layer <em>estimate</em></span>
+        <b class="c-v" id="d3d-count">--</b>
+        <span class="c-s" id="d3d-sub">Reading the task board…</span>
+      </div>
+    </div>
+  </div>
+  <p class="credit wrap" id="hero-credit"></p>
+</section>
+
 <main>
-  <section class="band">
+  <section class="sec" id="ladder">
     <div class="wrap">
-      <h2 class="sec">The ladder</h2>
-      <p class="sec-sub">Seven rungs from groundwork to a stable game. Leonida's place is read live from its own status table and task board, not scored by hand.</p>
-      <ol class="ladder" id="ladder"></ol>
-      <p class="ladder-note" id="ladder-note"></p>
+      <header class="sec-head">
+        <p class="kick">01 · Where it stands</p>
+        <h2>The ladder</h2>
+        <p class="sec-sub">Seven rungs from groundwork to a stable game. Leonida's place is read from its own status table and task board, never scored by hand.</p>
+      </header>
+      <ol class="ladder" id="ladder-list"></ol>
+      <p class="note" id="ladder-note"></p>
     </div>
   </section>
 
-  <section class="band">
-    <div class="wrap two">
-      <div>
-        <h2 class="sec">Mile markers</h2>
-        <p class="sec-sub">The route from a console copy to something you can play. Order matters: each stage needs the ones before it.</p>
-        <ol class="markers" id="markers"></ol>
-      </div>
-      <div>
-        <h2 class="sec">Live log</h2>
-        <p class="sec-sub">Merges, estimate changes and milestones, newest first. Checked every minute.</p>
-        <ol class="log" id="log" aria-live="polite"></ol>
-      </div>
+  <section class="sec alt" id="news">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="kick">02 · Verified news</p>
+        <h2>What changed</h2>
+        <p class="sec-sub">Only things with a source you can open: changes to the project's own status page, milestone merges and boot-task moves. Every item links to the commit, pull request or issue it comes from.</p>
+      </header>
+      <ol class="news" id="news-list"><li class="empty">Loading verified news…</li></ol>
+      <button class="more" id="news-more" type="button" hidden>Show older news</button>
     </div>
   </section>
 
-  <section class="band alt">
-    <div class="wrap">
-      <h2 class="sec">Graphics layer board</h2>
-      <p class="sec-sub">Every item in the project's Direct3D 12 → Vulkan tracker (issue <a href="https://github.com/ItsNotRexed/Leonida/issues/313" target="_blank" rel="noopener">#313</a>). The game can't draw anything until this layer is done.</p>
-      <div class="board">
+  <section class="sec" id="feed">
+    <div class="wrap feed-grid">
+      <div>
+        <header class="sec-head">
+          <p class="kick">03 · Live feed</p>
+          <h2>Every merge</h2>
+          <p class="sec-sub">Pull requests merged into Leonida's main branch, newest first, tagged by area. New ones flash as they land.</p>
+        </header>
+        <div class="filters" role="group" aria-label="Filter by area" id="filters"></div>
+      </div>
+      <ol class="log" id="log" aria-live="polite"></ol>
+    </div>
+  </section>
+
+  <section class="sec alt" id="board">
+    <div class="wrap board-grid">
+      <div>
+        <header class="sec-head">
+          <p class="kick">04 · Graphics layer</p>
+          <h2>Board</h2>
+          <p class="sec-sub">Every item on the Direct3D 12 → Vulkan tracker (<a href="https://github.com/ItsNotRexed/Leonida/issues/313" target="_blank" rel="noopener">issue #313</a>). The game draws nothing until this layer is done.</p>
+        </header>
         <div class="bar" id="d3d-bar" role="img" aria-label="Graphics layer items by state"></div>
         <dl class="legend" id="d3d-legend"></dl>
       </div>
+      <div>
+        <header class="sec-head">
+          <p class="kick">05 · Traffic</p>
+          <h2>Repo pulse</h2>
+        </header>
+        <dl class="stats" id="stats"></dl>
+      </div>
     </div>
   </section>
 
-  <section class="band">
+  <section class="sec" id="field">
     <div class="wrap">
-      <h2 class="sec">Traffic</h2>
-      <div class="stats" id="stats"></div>
+      <header class="sec-head">
+        <p class="kick">06 · The field</p>
+        <h2>Other ports</h2>
+        <p class="sec-sub">Other open-source attempts at running Xbox Series games on PC, with live stars and last activity from GitHub. Their claims are their own; open each repository to check them.</p>
+      </header>
+      <ol class="field" id="field-list"></ol>
     </div>
   </section>
 
-  <section class="band alt">
-    <div class="wrap method">
-      <h2 class="sec">How the estimate works</h2>
-      <div class="method-grid">
-        <div>
+  <section class="sec alt" id="method">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="kick">07 · Method</p>
+        <h2>How the estimates work</h2>
+      </header>
+      <div class="method">
+        <article>
           <h3>First boot</h3>
-          <p>The Leonida developers expect booting to take <b>1 to 3 days</b> after a retail exe reaches them. The tracker starts from that window and stretches or shrinks it by how fast work is landing now: the pull requests merged in the last 24 hours against the 24 hours before, capped at ±25% so one big merge round can't swing it wildly.</p>
-          <p class="formula" id="boot-formula">waiting for data…</p>
-          <p>When the coordination board moves the boot task (RT-5) from "blocked" to claimed, the sign says work is underway. When a pull request for RT-5 merges, it says booted.</p>
-        </div>
-        <div>
+          <p>Leonida's developers expect booting to take <b>1 to 3 days</b> after a retail exe reaches them. The tracker starts from that window and stretches or shrinks it by how fast work is landing: pull requests merged in the last 24 hours against the 24 hours before, capped at ±25% so one big merge round can't swing it. When the boot task (RT-5) is claimed the phase changes to "Recompiling"; when its pull request merges, to "Booted".</p>
+          <pre class="formula" id="boot-formula">waiting for data…</pre>
+        </article>
+        <article>
           <h3>Graphics layer</h3>
-          <p>Items on the graphics board that aren't merged yet, divided by how many graphics-layer pull requests merged per hour over the last two days. The range uses the last 24 hours as the second speed.</p>
-          <p class="formula" id="d3d-formula">waiting for data…</p>
-          <p>Playable has no estimate on purpose: nobody can know how much breaks until the game boots.</p>
-        </div>
+          <p>Items on the graphics board not yet merged, divided by graphics pull requests merged per hour over the last two days. The range uses the last 24 hours as the second speed.</p>
+          <pre class="formula" id="d3d-formula">waiting for data…</pre>
+        </article>
+        <article>
+          <h3>Ladder</h3>
+          <p>Groundwork is the share of rows in Leonida's README status table marked done (✅ = 1, ⚠️ or ? = ½). Higher rungs light up only on the project's own signals: the README's boot row, or the boot task merging. Playable has no date: nobody can know until the game boots.</p>
+          <pre class="formula" id="ladder-formula">waiting for data…</pre>
+        </article>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <p>Data: the public <a href="https://github.com/ItsNotRexed/Leonida" target="_blank" rel="noopener">Leonida repository</a> on GitHub, read from your browser. Estimates are projections, not promises.</p>
-    <p>Fan-made and unofficial. Not affiliated with Rockstar Games, Take-Two Interactive or Microsoft. Leonida ships no game files: players supply their own legally owned copy. The exe mentioned above stays on the tester's PC and is never shared.</p>
-    <p>The "here now" count uses two free public MQTT servers (broker.emqx.io and test.mosquitto.org): your browser connects to it anonymously and sends only a random id and a timestamp. Anyone can connect to that server, so treat the number as approximate.</p>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="foot-mark">Leonida<span>Tracker</span></p>
+    <div>
+      <p>Data: the public <a href="https://github.com/ItsNotRexed/Leonida" target="_blank" rel="noopener">Leonida repository</a>, read straight from your browser. Estimates are projections, not promises. Source: <a href="https://github.com/woreksami/leonida-tracker" target="_blank" rel="noopener">woreksami/leonida-tracker</a>.</p>
+      <p>Fan-made and unofficial. Not affiliated with Rockstar Games, Take-Two Interactive or Microsoft. Leonida ships no game files: players supply their own legally owned copy. The exe noted above is a tester's private copy and is never shared.</p>
+      <p>The "here now" count uses two free public MQTT servers (broker.emqx.io and test.mosquitto.org): your browser sends them only a random id and a timestamp. Anyone can connect to them, so treat the number as approximate.</p>
+    </div>
   </div>
 </footer>
 
