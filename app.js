@@ -228,7 +228,7 @@ function renderClocks() {
   }
   const st = $("status-text"), pu = $("pulse");
   if (Date.now() < S.backoffUntil) { st.textContent = `GitHub rate limit · retry ${when(S.backoffUntil, false)}`; pu.className = "pulse warn"; }
-  else if (S.lastOk) { st.textContent = `Live · checked ${ago(S.lastOk)} ago · every minute`; pu.className = "pulse on"; }
+  else if (S.lastOk) { const a = ago(S.lastOk); st.textContent = `Live · checked ${a === "now" ? "just now" : a + " ago"} · every minute`; pu.className = "pulse on"; }
 }
 
 const MARKERS = () => {
@@ -379,7 +379,44 @@ function scene() {
   if (still) draw(0); else requestAnimationFrame(loop);
 }
 
+/* ---------- people here now (public MQTT broker, retained heartbeats) ---------- */
+// Each visitor keeps a retained timestamp on its own random topic; the broker clears it when the tab goes away
+// (last will), and stale ones are ignored. shortcut: public broker, so the count can be faked; move to Supabase presence if that matters.
+function presence() {
+  if (!window.mqtt) return;
+  const base = "leonida-tracker/v1/presence/";
+  const id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).replace(/-/g, "").slice(0, 16);
+  const STALE = 75e3, seen = new Map();
+  let c;
+  try {
+    c = mqtt.connect("wss://broker.emqx.io:8084/mqtt", {
+      clientId: "lpt_" + id, clean: true, keepalive: 30, reconnectPeriod: 5000, connectTimeout: 10e3,
+      will: { topic: base + id, payload: "", retain: true, qos: 1 },
+    });
+  } catch { return; }
+  const beat = () => c.connected && c.publish(base + id, String(Date.now()), { retain: true, qos: 1 });
+  const show = () => {
+    const now = Date.now(); let n = 0;
+    for (const [k, ts] of seen) { if (now - ts < STALE) n++; else if (now - ts > 10 * MIN) seen.delete(k); }
+    if (!c.connected) return;
+    $("here-n").textContent = Math.max(1, n).toLocaleString();
+    $("here").hidden = false;
+  };
+  c.on("connect", () => { c.subscribe(base + "+", { qos: 0 }); seen.set(id, Date.now()); beat(); show(); });
+  c.on("message", (topic, payload) => {
+    const k = topic.slice(base.length), s = payload.toString();
+    if (!/^[a-z0-9]{1,32}$/i.test(k)) return;
+    if (!s) seen.delete(k);
+    else if (/^\d{10,14}$/.test(s)) seen.set(k, Math.min(Number(s), Date.now()));
+    show();
+  });
+  c.on("offline", () => { $("here").hidden = true; });
+  setInterval(() => { beat(); seen.set(id, Date.now()); show(); }, 30e3);
+  addEventListener("pagehide", () => { try { c.publish(base + id, "", { retain: true, qos: 0 }); c.end(true); } catch { /* closing */ } });
+}
+
 /* ---------- start ---------- */
+presence();
 scene();
 estimate();
 renderAll();

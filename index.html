@@ -15,6 +15,7 @@
 <div class="topbar">
   <div class="wrap topbar-in">
     <span class="brand">Leonida <em>Port Tracker</em></span>
+    <span class="here" id="here" hidden title="People with this page open right now"><b id="here-n">1</b> here now</span>
     <span class="status"><span class="pulse" id="pulse"></span><span id="status-text">Connecting to GitHub…</span></span>
   </div>
 </div>
@@ -108,9 +109,11 @@
   <div class="wrap">
     <p>Data: the public <a href="https://github.com/ItsNotRexed/Leonida" target="_blank" rel="noopener">Leonida repository</a> on GitHub, read from your browser. Estimates are projections, not promises.</p>
     <p>Fan-made and unofficial. Not affiliated with Rockstar Games, Take-Two Interactive or Microsoft. Leonida ships no game files: players supply their own legally owned copy. The exe mentioned above stays on the tester's PC and is never shared.</p>
+    <p>The "here now" count uses a free public MQTT server (broker.emqx.io): your browser connects to it anonymously and sends only a random id and a timestamp. Anyone can connect to that server, so treat the number as approximate.</p>
   </div>
 </footer>
 
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

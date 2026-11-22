@@ -32,6 +32,8 @@ a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-r
 .topbar-in { display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 48px; }
 .brand { font-family: var(--f-sign); font-weight: 900; text-transform: uppercase; letter-spacing: .04em; font-size: 15px; }
 .brand em { font-style: normal; font-weight: 400; color: var(--muted); }
+.here { margin-left: auto; font: 12px var(--f-mono); color: var(--muted); white-space: nowrap; }
+.here b { font: 900 15px var(--f-sign); color: var(--amber); font-variant-numeric: tabular-nums; }
 .status { display: flex; align-items: center; gap: 8px; font: 12px var(--f-mono); color: var(--muted); min-width: 0; }
 #status-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--plain); flex: none; }
