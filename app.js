@@ -79,6 +79,27 @@ function parseD3D(body) {
   return out.total ? out : null;
 }
 
+// The README's "Project status" table: ✅ = 1, ⚠️ or ? = ½, ❌ = 0. The "Booting…" row is the boot signal, not groundwork.
+function parseStatus(md) {
+  const at = md.indexOf("## Project status");
+  if (at < 0) return null;
+  const rows = new Map();
+  let boot = null, inTable = false;
+  for (const line of md.slice(at).split("\n").slice(1)) {
+    if (/^\|/.test(line)) inTable = true; else if (inTable) break; else continue;
+    const c = line.split("|").map((s) => s.trim());
+    const name = c[1] || "", st = c[2] || "";
+    if (!name || name === "What" || /^-+$/.test(name)) continue;
+    const v = st.startsWith("✅") ? 1 : st.startsWith("❌") ? 0 : (st.startsWith("⚠") || st.startsWith("?")) ? 0.5 : null;
+    if (v == null) continue;
+    if (/boot/i.test(name)) boot = v; else rows.set(name, v);
+  }
+  if (!rows.size) return null;
+  const vals = [...rows.values()];
+  return { ground: vals.reduce((a, b) => a + b, 0) / vals.length, n: vals.length,
+    done: vals.filter((v) => v === 1).length, part: vals.filter((v) => v === 0.5).length, boot };
+}
+
 function rt5From(body) {
   const blocked = body.split("\n").find((l) => /Blocked, not up for grabs/i.test(l)) || "";
   if (/\bRT-5\b(?!\d)/.test(blocked)) return "blocked";
@@ -133,6 +154,11 @@ const jobs = [
       S.rt5 = next;
   } },
   { every: 10, run: async () => { S.repo = await gh(`/repos/${REPO}`); } },
+  { every: 10, run: async () => {
+      const r = await gh(`/repos/${REPO}/readme`);
+      const bytes = Uint8Array.from(atob(r.content.replace(/\n/g, "")), (ch) => ch.charCodeAt(0));
+      S.status = parseStatus(new TextDecoder().decode(bytes)) || S.status;
+  } },
 ];
 
 let minute = 0;
@@ -309,7 +335,25 @@ function renderFormulas() {
     `eta = now + left ÷ speed = ${when(e.mid)}`;
 }
 
-function renderAll() { renderClocks(); renderMarkers(); renderBoard(); renderStats(); renderFormulas(); renderLog(); }
+const RUNGS = ["Groundwork", "Exe runs", "First frame", "Main menu", "In-game", "30 FPS", "Stable"];
+function renderLadder() {
+  const st = S.status, ol = $("ladder"); ol.textContent = "";
+  // Highest rung with live evidence: README's boot row ✅ means playable (in-game); ⚠️ or a merged RT-5 means the exe runs.
+  const top = st?.boot === 1 ? 4 : (st?.boot === 0.5 || S.rt5Pr) ? 1 : 0;
+  RUNGS.forEach((name, i) => {
+    const fill = i < top ? 1 : i === top ? (i === 0 ? (st ? st.ground : 0) : 0.5) : 0;
+    const li = el("li", i < top ? "reached" : i === top ? "here" : "future");
+    const f = el("div", "fill"); f.style.height = fill * 100 + "%"; li.style.setProperty("--w", fill * 100 + "%");
+    const head = el("div"); head.append(el("div", "rn", "RUNG " + (i + 1)), el("h3", null, name));
+    const pct = el("div", "pct", i <= top ? (i === 0 && st ? Math.round(st.ground * 100) + "%" : i < top ? "✓" : "now") : "");
+    li.append(f, head, pct); ol.append(li);
+  });
+  $("ladder-note").textContent = st
+    ? `Groundwork ${Math.round(st.ground * 100)}%: ${st.done} of ${st.n} parts in Leonida's status table are done and ${st.part} are partly done (counted as half). The next rung lights up when the game's exe runs.`
+    : "Reading Leonida's status table…";
+}
+
+function renderAll() { renderLadder(); renderClocks(); renderMarkers(); renderBoard(); renderStats(); renderFormulas(); renderLog(); }
 
 /* ---------- scene: dusk over a causeway, drawn in code ---------- */
 function scene() {
@@ -392,7 +436,7 @@ function presence() {
   const base = "leonida-tracker/v1/presence/";
   const id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).replace(/-/g, "").slice(0, 16);
   const STALE = 75e3, seen = new Map();
-  const brokers = ["wss://broker.emqx.io:8084/mqtt", "wss://broker.hivemq.com:8884/mqtt"];
+  const brokers = ["wss://broker.emqx.io:8084/mqtt", "wss://test.mosquitto.org:8081/mqtt"];
   const clients = [];
   const anyUp = () => clients.some((c) => c.connected);
   const show = () => {
